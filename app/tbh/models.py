@@ -49,13 +49,13 @@ class User(Base):
         backref='sending_user'
     )
 
-    received_neutral_message = relationship(
+    received_mutual_messages = relationship(
         'NeutralMessage',
         foreign_keys='NeutralMessage.receiver_id',
         backref='receiving_user'
     )
 
-    sent_neutral_messages = relationship(
+    sent_mutual_messages = relationship(
         'NeutralMessage',
         foreign_keys='NeutralMessage.sender_id',
         backref='sending_user'
