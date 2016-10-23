@@ -1,10 +1,7 @@
 from sqlalchemy.ext.declarative import (declarative_base, declared_attr)
-from sqlalchemy.ext.associationproxy import association_proxy
-from sqlalchemy import Column, Integer, String, ForeignKey, Table, UniqueConstraint, Sequence
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy.orm import relationship
 import sqlalchemy as sa
-
-from app import db_session
 
 
 mymetadata = sa.MetaData()
@@ -32,11 +29,23 @@ class NeutralMessage(MessageBaseMixin, Base):
     __tablename__ = 'neutral_message'
 
 
+class UserBaseMixin(object):
+
+
 class User(Base):
+
+    @declared_attr
+    def id(self):
+        return Column(Integer, primary_key=True)
+
+    @declared_attr
+    def username(self):
+        return Column(String(40))
+
+
 
     __tablename__ = 'users'
 
-    id = Column(Integer, primary_key=True)
     received_pending_messages = relationship(
         'PendingMessages',
         foreign_keys='PendingMessages.receiver_id',
