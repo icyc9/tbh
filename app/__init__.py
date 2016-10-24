@@ -10,6 +10,8 @@ from app.db.connections import create_sa_engine
 from app.db.session import create_sa_session_maker
 from app.tools.dotenv import set_env_file as _set_env
 
+from app.auth.handlers import AuthHandler
+
 
 SERVER_PORT = Config.server_port
 SERVER_HOST = Config.server_host
@@ -40,7 +42,7 @@ def init_application():
 
 
     handlers = [
-
+        ('/auth', AuthHandler)
     ]
 
     make_server(
