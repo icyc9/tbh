@@ -1,0 +1,6 @@
+
+MESSAGE_LIST = [
+    {
+
+    }
+]
