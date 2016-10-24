@@ -10,7 +10,6 @@ build/
 .idea/
 .DS_Store
 .cache/
-config.py
 .env
 .envrc
 /dist
