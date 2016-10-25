@@ -36,7 +36,6 @@ class TBHUser(Base):
 
 
     id = Column(Integer, primary_key=True)
-    username = Column(String(40))
     phone_number = Column(PhoneNumberType())
     type = Column(String(50))
 
@@ -86,3 +85,7 @@ class VerifiedUser(TBHUser):
     __mapper_args__ = {
         'polymorphic_identity': 'verified_user',
     }
+
+
+mymetadata.drop_all(db_session)
+mymetadata.create_all(db_session)
