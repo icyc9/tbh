@@ -13,6 +13,10 @@ class Config(object):
     process_count = int(os.environ['PROCESS_COUNT'])
     server_host = os.environ['SERVER_HOST']
 
+    JWT = {
+        'secret': os.environ['JWT_SECRET']
+    }
+
     Tornado = {
         'autoreload': ast.literal_eval(os.environ['AUTORELOAD']),
         'debug': ast.literal_eval(os.environ['DEBUG'])
