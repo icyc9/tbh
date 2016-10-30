@@ -1,15 +1,24 @@
 import os
 
+import tornado.web
 import tornado.ioloop
 import tornado.web
 import tornado.options
 import tornado.httpserver
 import sqlalchemy as sa
-from sqlalchemy.ext.declarative import (declarative_base, declared_attr)
+from sqlalchemy.ext.declarative import declarative_base
 
 from app.db.connections import create_sa_engine
 from app.db.session import create_sa_session_maker
 from app.tools.dotenv import set_env_file as _set_env
+from app.db.session import create_scoped_session
+from app.db.base import Database as BaseDB
+from app.auth.services import (AuthService, JWTService)
+from app.user.services import UserAccountService
+from app.messages.services import MessageService
+from app.auth.handlers import AuthHandler
+from app.messages.handlers import MessageHandler
+from app.presets.handlers import PresetHandler
 from config import Config
 
 
@@ -19,26 +28,41 @@ PROCESS_PER_CPU = Config.process_count
 TORNADO_CONFIG = Config.Tornado
 
 
-db_session = create_sa_engine()
-sa_session_maker = create_sa_session_maker(db_session)
-db_metadata = sa.MetaData()
-db_base = declarative_base(metadata=db_metadata)
+class Database(BaseDB):
+    def __init__(self):
+        self.engine = create_sa_engine()
+        self.scoped_session = create_scoped_session(self.engine)
+        self.metadata = sa.MetaData()
+        self.base = declarative_base(metadata=self.metadata)
 
-from app.auth.handlers import AuthHandler
-from app.messages.handlers import MessageHandler
-from app.presets.handlers import PresetHandler
+    def get_engine(self):
+        return self.engine
+
+    def get_scoped_session(self):
+        return self.scoped_session
+
+    def get_metadata(self):
+        return self.metadata
+
+    def get_declaractive_base(self):
+        return self.base
+
+
+database = Database()
 
 from app.user.models import *
 from app.messages.models import *
+from app.user.repository import UserRepository
+from app.messages.repository import MessageRepository
 
-from app.auth.services import (AuthService, JWTService)
-from app.user.services import UserAccountService
-from app.messages.services import MessageService
+user_repository = UserRepository(database=database)
+message_repository = MessageRepository(database=database)
 
 auth_service = AuthService()
-user_account_service = UserAccountService(sa_session_maker)
 jwt_service = JWTService()
-message_service = MessageService(sa_session_maker, user_account_service)
+user_service = UserAccountService(user_repository=user_repository)
+message_service = MessageService(user_service=user_service,
+                                 message_repository=message_repository)
 
 __version__ = '0.0.1'
 
@@ -46,38 +70,47 @@ _set_env(os.path.join(
     os.path.dirname(os.path.dirname(__file__)), '.env'))
 
 
-def make_server(handlers, port, host, tornado_config):
-    app = tornado.web.Application(handlers, **tornado_config)
+class Application(tornado.web.Application):
+    def __init__(self, tornado_config):
+        self.database = database
+        self.db_metadata = self.database.get_metadata()
+        self.db_engine = self.database.get_engine()
+        self.scoped_session = self.database.get_scoped_session()
 
-    server = tornado.httpserver.HTTPServer(app)
-    server.bind(port=port, address=host)
-    server.start(0)
+        handlers = [
+            ('/auth', AuthHandler, dict(
+                auth_service=auth_service,
+                user_account_service=user_service,
+                jwt_service=jwt_service)
+             ),
+
+            ('/messages', MessageHandler, dict(
+                message_service=message_service)
+             ),
+
+            ('/presets', PresetHandler)
+        ]
+
+        tornado.web.Application.__init__(self, handlers, **tornado_config)
+
+    def get_database(self):
+        return self.database
+
+    def create_tables(self, **kwargs):
+        self.db_metadata.create_all(bind=self.db_engine, **kwargs)
+
+    def drop_tables(self, **kwargs):
+        self.db_metadata.drop_all(bind=self.db_engine, **kwargs)
+
+    def start_server(self, port, address, num_processes):
+        server = tornado.httpserver.HTTPServer(self)
+        server.bind(port=port, address=address)
+        server.start(num_processes=num_processes)
+
+
+def main():
+    app = Application(tornado_config=TORNADO_CONFIG)
+    app.start_server(port=SERVER_PORT, address=SERVER_HOST,
+                     num_processes=PROCESS_PER_CPU)
 
     return app
-
-
-def init_application():
-
-
-    handlers = [
-        ('/auth', AuthHandler, dict(
-            auth_service=auth_service,
-            user_account_service=user_account_service,
-            jwt_service=jwt_service
-        )),
-        ('/messages', MessageHandler, dict(
-            message_service=message_service
-        )),
-        ('/presets', PresetHandler)
-    ]
-
-    make_server(
-        handlers=handlers,
-        port=SERVER_PORT,
-        host=SERVER_HOST,
-        tornado_config=TORNADO_CONFIG
-    )
-
-
-db_metadata.drop_all(db_session)
-db_metadata.create_all(db_session)

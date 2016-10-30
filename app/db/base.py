@@ -1,8 +1,7 @@
 from app.tools.formatters import format_repr
 
 
-class Database:
-    __slots__ = 'name',
+class Database(object):
 
     def __init__(self, name):
         self.name = name

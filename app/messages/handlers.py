@@ -5,6 +5,7 @@ from app.base import BaseHandler
 from app.auth.jwt import jwt_required
 from app.messages.schema import MessageSchema
 from app.presets.services import get_preset_by_code
+from app.exceptions import DuplicateMessage
 
 
 @jwt_required
@@ -57,8 +58,12 @@ class MessageHandler(BaseHandler):
         try:
             self.message_service.send_message(sender_id=self.tbh_user_id,
                 receiver_phone_number=receiver_phone_number, text=message_text)
-        except:
+        except Exception as e:
+            print(e)
             self.set_status(HTTPStatus.UNAUTHORIZED)
+            return self.finish()
+        except DuplicateMessage:
+            self.set_status(HTTPStatus.CONFLICT)
             return self.finish()
 
         self.set_status(HTTPStatus.OK)

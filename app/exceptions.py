@@ -23,3 +23,7 @@ class ResourceError(AppError):
 
 class AuthError(AppError):
     '''Error occurs during authentication failure'''
+
+
+class DuplicateMessage(AppError):
+    '''Error occurs when a duplicate message is created'''

@@ -1,25 +1,27 @@
+import emoji
+
 
 MESSAGE_LIST = {
   "presets": [
     {
       "code": 0,
-      "message": "We should hang out \ud83d\udc4c"
+      "message": emoji.emojize('We should hang out :thumbs_up_sign:')
     },
     {
       "code": 1,
-      "message": "We should start talking again \ud83d\ude0e"
+      "message": emoji.emojize('We should start talking again :thumbs_up_sign:')
     },
     {
       "code": 2,
-      "message": "Your cute \ud83d\ude0d"
+      "message": emoji.emojize('You\'re cute :thumbs_up_sign:')
     },
     {
       "code": 3,
-      "message": "Your hilarious \ud83d\ude02"
+      "message": emoji.emojize('You\'re hilarious :thumbs_up_sign:')
     },
     {
       "code": 4,
-      "message": "Your nice \ud83d\ude42"
+      "message": emoji.emojize('You\'re nice :thumbs_up_sign:')
     }
   ]
 }

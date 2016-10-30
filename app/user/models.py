@@ -2,11 +2,14 @@ from sqlalchemy import Column, Integer, BigInteger, String, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy_utils.types.phone_number import PhoneNumberType
 
-from app import db_base
+from app import database
 from app.messages.models import Message
 
 
-class TBHUser(db_base):
+Base = database.get_declaractive_base()
+
+
+class TBHUser(Base):
     __tablename__ = 'tbh_user'
 
 
