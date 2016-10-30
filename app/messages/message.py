@@ -1,6 +1,0 @@
-
-MESSAGE_LIST = [
-    {
-
-    }
-]

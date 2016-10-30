@@ -1,7 +1,11 @@
 backports-abc==0.4
 certifi==2016.9.26
+marshmallow==2.10.3
+phonenumbers==7.7.2
 psycopg2==2.6.2
+PyJWT==1.4.2
 singledispatch==3.4.0.3
 six==1.10.0
 SQLAlchemy==1.1.2
+SQLAlchemy-Utils==0.32.9
 tornado==4.4.2

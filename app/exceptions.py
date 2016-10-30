@@ -15,3 +15,11 @@ class JSONDecodeError(AppError):
 
 class ParseError(AppError):
     '''Parse error'''
+
+
+class ResourceError(AppError):
+    '''Error occurs when a resource does not exist'''
+
+
+class AuthError(AppError):
+    '''Error occurs during authentication failure'''

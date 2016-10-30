@@ -1,4 +1,4 @@
-from app import init_application, sa_session_maker
+from app import init_application
 import tornado.httpserver
 
 

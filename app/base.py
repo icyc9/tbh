@@ -8,7 +8,7 @@ class BaseHandler(tornado.web.RequestHandler):
     '''
 
     def __init__(self, application, request, **kwargs):
-        super(BaseHandler, self).__init__(application, request)
+        super(BaseHandler, self).__init__(application, request, **kwargs)
 
     def write_error(self, status_code, **kwargs):
         self.set_status(status_code)
