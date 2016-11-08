@@ -10,15 +10,12 @@ RUN echo "deb http://apt.postgresql.org/pub/repos/apt/ trusty-pgdg main"    \
     apt-get install -y postgresql-server-dev-9.5
 
 COPY tbh/ /home/user
-RUN cd /home/user; ls
-
-RUN virtualenv venv && \
-    source venv/bin/activate
 
 RUN pip install --upgrade pip       && \
     pip install wheel               && \
     pip install -r requirements.txt && \
-    python setup.py bdist_wheel
+    python setup.py bdist_wheel && \
+    python setup.py install
 
 RUN mv gunicorn/app.conf /etc/init
 
@@ -26,3 +23,4 @@ RUN mv gunicorn/app.conf /etc/init
 RUN rm -f /etc/service/nginx/down &&\
   rm /etc/nginx/sites-enabled/default
 RUN mv nginx/app.conf /etc/nginx/sites-enabled/tbhapi.conf
+
