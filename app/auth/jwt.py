@@ -25,6 +25,7 @@ def jwt_required(handler_class):
 
                         # set an attribute on the handler so we can access the user id later
                         handler.tbh_user_id = payload['id']
+                        handler.push_id = payload['push_id']
                     except Exception as e:
                         print(e)
                         handle_invalid_jwt(handler)

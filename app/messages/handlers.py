@@ -3,7 +3,7 @@ from http import HTTPStatus
 from tornado.escape import json_decode
 from app.base import BaseHandler
 from app.auth.jwt import jwt_required
-from app.messages.schema import MessageSchema
+from app.messages.schema import (PendingMessageSchema, MutualMessageSchema)
 from app.presets.services import get_preset_by_code
 from app.exceptions import DuplicateMessage
 
@@ -23,9 +23,14 @@ class MessageHandler(BaseHandler):
             'mutual': self.message_service.get_mutual_messages
         }
 
+        self.FILTER_SERIALIZERS = {
+            'sent': PendingMessageSchema,
+            'received': PendingMessageSchema,
+            'mutual': MutualMessageSchema
+        }
+
     def get(self):
         '''Retrieve Message resource'''
-
 
         try:
             filter = self.get_argument("filter")
@@ -37,7 +42,7 @@ class MessageHandler(BaseHandler):
 
         results = filter_service(self.tbh_user_id)
         # or to dump a list of objects
-        message_schema = MessageSchema(many=True)
+        message_schema = self.FILTER_SERIALIZERS[filter](many=True)
         results = {'messages': message_schema.dump(results).data }
 
         self.write(results)
@@ -58,8 +63,8 @@ class MessageHandler(BaseHandler):
         try:
             self.message_service.send_message(sender_id=self.tbh_user_id,
                 receiver_phone_number=receiver_phone_number, text=message_text)
-        except Exception as e:
-            print(e)
+            
+        except Exception:
             self.set_status(HTTPStatus.UNAUTHORIZED)
             return self.finish()
         except DuplicateMessage:

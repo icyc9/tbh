@@ -49,11 +49,14 @@ class MessageRepository(object):
 
         with sa_session(self.scoped_session) as session:
             pending_messages = session.query(Message) \
-                .filter(and_(
-                    (Message.sender_id == sender_id) |
-                    (Message.sender_id == receiver_id),
-                    (Message.text == text)))\
-                .filter(Message.receiver_id == receiver_id).one()
+                .filter(
+                    or_(
+                        and_(Message.sender_id == sender_id,
+                            Message.receiver_id == receiver_id),
+                        and_(Message.sender_id == receiver_id,
+                            Message.receiver_id == sender_id)
+                    )
+                ).filter(Message.text == text).one()
 
             return pending_messages
 

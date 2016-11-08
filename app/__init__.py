@@ -5,6 +5,7 @@ import tornado.ioloop
 import tornado.web
 import tornado.options
 import tornado.httpserver
+import tornado.wsgi
 import sqlalchemy as sa
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -16,6 +17,7 @@ from app.db.base import Database as BaseDB
 from app.auth.services import (AuthService, JWTService)
 from app.user.services import UserAccountService
 from app.messages.services import MessageService
+from app.notifications.services import PushNotifyService
 from app.auth.handlers import AuthHandler
 from app.messages.handlers import MessageHandler
 from app.presets.handlers import PresetHandler
@@ -60,9 +62,11 @@ message_repository = MessageRepository(database=database)
 
 auth_service = AuthService()
 jwt_service = JWTService()
+push_notify_service = PushNotifyService.from_config()
 user_service = UserAccountService(user_repository=user_repository)
 message_service = MessageService(user_service=user_service,
-                                 message_repository=message_repository)
+                                 message_repository=message_repository,
+                                 push_notify_service=push_notify_service)
 
 __version__ = '0.0.1'
 
@@ -108,9 +112,16 @@ class Application(tornado.web.Application):
         server.start(num_processes=num_processes)
 
 
-def main():
-    app = Application(tornado_config=TORNADO_CONFIG)
-    app.start_server(port=SERVER_PORT, address=SERVER_HOST,
-                     num_processes=PROCESS_PER_CPU)
+def main(*args):
+    tornado_app = Application(tornado_config=TORNADO_CONFIG)
+    application = tornado.wsgi.WSGIAdapter(tornado_app)
 
-    return app
+    return application
+
+
+def start_development_server():
+    tornado_app = Application(tornado_config=TORNADO_CONFIG)
+    tornado_app.start_server(port=SERVER_PORT, address=SERVER_HOST,
+                             num_processes=PROCESS_PER_CPU)
+
+    return tornado_app

@@ -19,7 +19,7 @@ class AuthHandler(BaseHandler):
     async def post(self):
         auth_header = self.request.headers.get('X-Verify-Credentials-Authorization')
         provider = self.request.headers.get('X-Auth-Service-Provider')
-        print(self.request.headers.get('Content-Type'))
+
         if (not auth_header or not provider):
             self.set_status(HTTPStatus.BAD_REQUEST)
             return self.finish()
@@ -27,13 +27,13 @@ class AuthHandler(BaseHandler):
         try:
             request_body = json_decode(self.request.body)
             gender = request_body['gender']
+            push_id = request_body['push_id']
 
             if gender not in (0, 1):
                 raise Exception('Invalid gender')
-        except Exception as e:
+        except:
             self.set_status(HTTPStatus.BAD_REQUEST)
             return self.finish()
-
 
         try:
             digits_user = await self.auth_service.fetch_digits_provider(
@@ -41,7 +41,6 @@ class AuthHandler(BaseHandler):
 
             user_id = digits_user['id']
             phone_number = digits_user['phone_number']
-
         except AuthError:
             self.set_status(HTTPStatus.UNAUTHORIZED)
             return self.finish()
@@ -49,7 +48,7 @@ class AuthHandler(BaseHandler):
         self.user_service.verify_user_resource(
             user_id=user_id, phone_number=phone_number, gender=gender)
 
-        jwt_token = self.jwt_service.sign_jwt_token({'id': user_id})
+        jwt_token = self.jwt_service.sign_jwt_token({'id': user_id, 'push_id': push_id})
 
         response = {
             'token': jwt_token

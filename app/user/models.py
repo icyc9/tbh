@@ -1,3 +1,4 @@
+from sqlalchemy.orm import backref
 from sqlalchemy import Column, Integer, BigInteger, String, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy_utils.types.phone_number import PhoneNumberType
@@ -17,19 +18,20 @@ class TBHUser(Base):
     phone_number = Column(PhoneNumberType())
     type = Column(String(50))
     status = Column(Integer)
-    gender = Column(Integer)
+    gender = Column(Integer)    
+    push_id = Column(String, nullable=False)
 
     sent_pending_messages = relationship(
         'Message',
         foreign_keys='Message.sender_id',
-        backref='sending_user',
+        backref=backref("sending_user", lazy="joined"),
         lazy="dynamic",
     )
 
     received_pending_messages = relationship(
         'Message',
         foreign_keys='Message.receiver_id',
-        backref='receiving_user',
+        backref=backref("receiving_user", lazy="joined"),
         lazy="dynamic"
     )
 
