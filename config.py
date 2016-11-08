@@ -28,3 +28,7 @@ class Config(object):
     JWT = {
         'secret': os.environ['JWT_SECRET']
     }
+
+    PushNotifications = {
+        'api_key': os.environ['PUSH_API_KEY']
+    }
