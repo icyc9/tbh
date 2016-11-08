@@ -1,4 +1,4 @@
-FROM censible/python-3.5.1
+FROM tbhapi/python-3.5.1
 
 ENV DOCKER_IMAGE=tbhapi/python-3.5.1-tbhapi-development
 
@@ -10,8 +10,19 @@ RUN echo "deb http://apt.postgresql.org/pub/repos/apt/ trusty-pgdg main"    \
     apt-get install -y postgresql-server-dev-9.5
 
 COPY tbh/ /home/user
+RUN cd /home/user; ls
+
+RUN virtualenv venv && \
+    source venv/bin/activate
 
 RUN pip install --upgrade pip       && \
     pip install wheel               && \
     pip install -r requirements.txt && \
     python setup.py bdist_wheel
+
+RUN mv gunicorn/app.conf /etc/init
+
+# setup nginx
+RUN rm -f /etc/service/nginx/down &&\
+  rm /etc/nginx/sites-enabled/default
+RUN mv nginx/app.conf /etc/nginx/sites-enabled/tbhapi.conf
