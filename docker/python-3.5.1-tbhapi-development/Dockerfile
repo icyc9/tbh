@@ -19,6 +19,11 @@ RUN pip install --upgrade pip       && \
 
 RUN mv gunicorn/app.conf /etc/init
 
+RUN apt-get update && apt-get install -y openssh-server apache2 supervisor
+RUN mkdir -p /var/lock/apache2 /var/run/apache2 /var/run/sshd /var/log/supervisor
+
+COPY supervisor/app.conf /etc/supervisor/conf.d/app.conf
+
 # setup nginx
 RUN rm -f /etc/service/nginx/down &&\
   rm /etc/nginx/sites-enabled/default
