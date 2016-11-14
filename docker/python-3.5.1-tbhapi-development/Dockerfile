@@ -19,13 +19,16 @@ RUN pip install --upgrade pip       && \
 
 RUN mv gunicorn/app.conf /etc/init
 
-RUN apt-get update && apt-get install -y openssh-server apache2 supervisor
-RUN mkdir -p /var/lock/apache2 /var/run/apache2 /var/run/sshd /var/log/supervisor
+# create directory for child images to store configuration in
+RUN apt-get -y install supervisor && \
+  mkdir -p /var/log/supervisor && \
+  mkdir -p /etc/supervisor/conf.d
 
-COPY supervisor/app.conf /etc/supervisor/conf.d/app.conf
+# supervisor base configuration
+COPY tbh/supervisor/supervisor.conf /etc/supervisor.conf
+COPY tbh/supervisor/app.conf /etc/supervisor/conf.d/app.conf
 
 # setup nginx
-RUN rm -f /etc/service/nginx/down &&\
-  rm /etc/nginx/sites-enabled/default
 RUN mv nginx/app.conf /etc/nginx/sites-enabled/tbhapi.conf
 
+CMD ["supervisord", "-c", "/etc/supervisor.conf"]
