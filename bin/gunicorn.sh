@@ -2,7 +2,6 @@
 
 NAME="tbhapi"
 APPDIR=$APPDIR
-PORT=8082
 
 echo "Starting $NAME"
 
