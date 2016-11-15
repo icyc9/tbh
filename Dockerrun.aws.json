@@ -1,0 +1,12 @@
+{
+  "AWSEBDockerrunVersion": "1",
+  "Image": {
+    "Name": "870199535132.dkr.ecr.us-east-1.amazonaws.com/tbhapi/python-3.5.1-tbhapi-production",
+    "Update": "true"
+  },
+  "Ports": [
+    {
+      "ContainerPort": "8080"
+    }
+  ]
+}
