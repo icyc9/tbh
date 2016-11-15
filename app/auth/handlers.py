@@ -21,7 +21,7 @@ class AuthHandler(BaseHandler):
         provider = self.request.headers.get('X-Auth-Service-Provider')
 
         if (not auth_header or not provider):
-            self.set_status(HTTPStatus.BAD_REQUEST)
+            self.set_status(int(HTTPStatus.BAD_REQUEST))
             return self.finish()
 
         try:
@@ -32,7 +32,7 @@ class AuthHandler(BaseHandler):
             if gender not in (0, 1):
                 raise Exception('Invalid gender')
         except:
-            self.set_status(HTTPStatus.BAD_REQUEST)
+            self.set_status(int(HTTPStatus.BAD_REQUEST))
             return self.finish()
 
         try:
@@ -42,7 +42,7 @@ class AuthHandler(BaseHandler):
             user_id = digits_user['id']
             phone_number = digits_user['phone_number']
         except AuthError:
-            self.set_status(HTTPStatus.UNAUTHORIZED)
+            self.set_status(int(HTTPStatus.UNAUTHORIZED))
             return self.finish()
 
         self.user_service.verify_user_resource(
@@ -55,5 +55,5 @@ class AuthHandler(BaseHandler):
         }
 
         self.write(response)
-        self.set_status(HTTPStatus.CREATED)
+        self.set_status(int(HTTPStatus.CREATED))
         self.finish()

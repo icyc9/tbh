@@ -40,7 +40,7 @@ class AuthService(object):
 
         response_status = response.code
 
-        if not response_status == HTTPStatus.OK:
+        if not response_status == int(HTTPStatus.OK):
             raise AuthError('Error retrieving digits account')
 
         return json_decode(response.body)

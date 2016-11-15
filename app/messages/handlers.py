@@ -37,7 +37,7 @@ class MessageHandler(BaseHandler):
             filter_service = self.FILTER_SERVICES[filter]
         except:
             # Filter does not exist
-            self.set_status(HTTPStatus.BAD_REQUEST)
+            self.set_status(int(HTTPStatus.BAD_REQUEST))
             return self.finish()
 
         results = filter_service(self.tbh_user_id)
@@ -46,7 +46,7 @@ class MessageHandler(BaseHandler):
         results = {'messages': message_schema.dump(results).data }
 
         self.write(results)
-        self.set_status(HTTPStatus.OK)
+        self.set_status(int(HTTPStatus.OK))
         self.finish()
 
     def post(self):
@@ -57,7 +57,7 @@ class MessageHandler(BaseHandler):
             receiver_phone_number = request_body['receiver_phone_number']
             message_text = get_preset_by_code(request_body['message_id'])
         except Exception as e:
-            self.set_status(HTTPStatus.BAD_REQUEST)
+            self.set_status(int(HTTPStatus.BAD_REQUEST))
             return self.finish()
 
         try:
@@ -65,11 +65,11 @@ class MessageHandler(BaseHandler):
                 receiver_phone_number=receiver_phone_number, text=message_text)
             
         except Exception:
-            self.set_status(HTTPStatus.UNAUTHORIZED)
+            self.set_status(int(HTTPStatus.UNAUTHORIZED))
             return self.finish()
         except DuplicateMessage:
-            self.set_status(HTTPStatus.CONFLICT)
+            self.set_status(int(HTTPStatus.CONFLICT))
             return self.finish()
 
-        self.set_status(HTTPStatus.OK)
+        self.set_status(int(HTTPStatus.OK))
         self.finish()
