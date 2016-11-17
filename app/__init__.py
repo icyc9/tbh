@@ -1,4 +1,5 @@
 import os
+from http import HTTPStatus
 
 import tornado.web
 import tornado.ioloop
@@ -21,6 +22,7 @@ from app.notifications.services import PushNotifyService
 from app.auth.handlers import AuthHandler
 from app.messages.handlers import MessageHandler
 from app.presets.handlers import PresetHandler
+from app.base import BaseHandler
 from config import Config
 
 
@@ -74,6 +76,12 @@ _set_env(os.path.join(
     os.path.dirname(os.path.dirname(__file__)), '.env'))
 
 
+class BaseHandler(BaseHandler):
+    def get(self):
+        self.set_status(int(HTTPStatus.OK))
+        self.finish()
+
+
 class Application(tornado.web.Application):
     def __init__(self, tornado_config):
         self.database = database
@@ -82,6 +90,7 @@ class Application(tornado.web.Application):
         self.scoped_session = self.database.get_scoped_session()
 
         handlers = [
+            ('/', BaseHandler),
             ('/auth', AuthHandler, dict(
                 auth_service=auth_service,
                 user_account_service=user_service,
