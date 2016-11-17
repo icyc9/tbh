@@ -29,6 +29,9 @@ COPY tbh/supervisor/supervisor.conf /etc/supervisor.conf
 COPY tbh/supervisor/app.conf /etc/supervisor/conf.d/app.conf
 
 # setup nginx
-RUN mv nginx/app.conf /etc/nginx/sites-enabled/tbhapi.conf
+RUN mv nginx/app.conf /etc/nginx/nginx.conf
+RUN service nginx stop
+
+EXPOSE 80 8080
 
 CMD ["supervisord", "-c", "/etc/supervisor.conf"]
