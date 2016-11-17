@@ -16,7 +16,7 @@ class AuthHandler(BaseHandler):
         self.user_service = user_account_service
         self.jwt_service = jwt_service
 
-    async def post(self):
+    def post(self):
         auth_header = self.request.headers.get('X-Verify-Credentials-Authorization')
         provider = self.request.headers.get('X-Auth-Service-Provider')
 
@@ -36,7 +36,7 @@ class AuthHandler(BaseHandler):
             return self.finish()
 
         try:
-            digits_user = await self.auth_service.fetch_digits_provider(
+            digits_user = self.auth_service.fetch_digits_provider(
                 provider_url=provider, auth_header=auth_header)
 
             user_id = digits_user['id']

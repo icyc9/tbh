@@ -4,7 +4,7 @@ from http import HTTPStatus
 
 import jwt
 from tornado.escape import json_decode
-from tornado.httpclient import AsyncHTTPClient
+from tornado.httpclient import HTTPClient
 from tornado.httpclient import HTTPRequest
 
 from app.exceptions import AuthError
@@ -22,7 +22,7 @@ class AuthService(object):
     Authentication service
     '''
 
-    async def fetch_digits_provider(self, provider_url, auth_header):
+    def fetch_digits_provider(self, provider_url, auth_header):
         '''
         Fetch digits provider url and retrieve user account information.
         This method uses Tornado's underyling async http client to retrieve
@@ -30,10 +30,11 @@ class AuthService(object):
         completion.
         '''
 
-        self._http_client = AsyncHTTPClient()
+        self._http_client = HTTPClient()
+
 
         try:
-            response = await self._http_client.fetch(
+            response = self._http_client.fetch(
                 HTTPRequest(provider_url, headers={'Authorization': auth_header}))
         except:
             raise AuthError('Error retrieving digits account')
