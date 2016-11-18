@@ -40,7 +40,7 @@ class UserAccountService:
 
         self.user_repository.get_user_by_id(user_id=user_id)
 
-    def verify_user_resource(self, user_id, phone_number, gender):
+    def verify_user_resource(self, user_id, phone_number, gender, push_id):
         '''
         Set a users status as verified.
         If the resource does not exist, create a verified user.
@@ -53,7 +53,7 @@ class UserAccountService:
             # The user does not exist
             # Create the user
             self.user_repository.create_verified_user(
-                user_id=user_id, phone_number=phone_number, gender=gender)
+                user_id=user_id, phone_number=phone_number, gender=gender, push_id=push_id)
 
     def retrieve_user_by_phone_number(self, phone_number):
         '''

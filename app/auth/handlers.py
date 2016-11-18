@@ -46,7 +46,7 @@ class AuthHandler(BaseHandler):
             return self.finish()
 
         self.user_service.verify_user_resource(
-            user_id=user_id, phone_number=phone_number, gender=gender)
+            user_id=user_id, phone_number=phone_number, gender=gender, push_id=push_id)
 
         jwt_token = self.jwt_service.sign_jwt_token({'id': user_id, 'push_id': push_id})
 
