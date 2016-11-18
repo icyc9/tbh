@@ -9,7 +9,7 @@ RUN echo "deb http://apt.postgresql.org/pub/repos/apt/ trusty-pgdg main"    \
     apt-get update                                                       && \
     apt-get install -y postgresql-server-dev-9.5
 
-COPY tbh1/ /home/user
+COPY tbh/ /home/user
 
 RUN pip install --upgrade pip       && \
     pip install wheel               && \
@@ -25,8 +25,8 @@ RUN apt-get -y install supervisor && \
   mkdir -p /etc/supervisor/conf.d
 
 # supervisor base configuration
-COPY tbh1/supervisor/supervisor.conf /etc/supervisor.conf
-COPY tbh1/supervisor/app.conf /etc/supervisor/conf.d/app.conf
+COPY tbh/supervisor/supervisor.conf /etc/supervisor.conf
+COPY tbh/supervisor/app.conf /etc/supervisor/conf.d/app.conf
 
 # setup nginx
 RUN mv nginx/app.conf /etc/nginx/nginx.conf
