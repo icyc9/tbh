@@ -89,6 +89,8 @@ class Application(tornado.web.Application):
         self.db_engine = self.database.get_engine()
         self.scoped_session = self.database.get_scoped_session()
 
+        self.create_tables()
+
         handlers = [
             ('/', BaseHandler),
             ('/auth', AuthHandler, dict(
