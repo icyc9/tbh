@@ -19,20 +19,21 @@ class UserRepository(object):
 
             return invited_user
 
-    def create_verified_user(self, user_id, phone_number, gender):
+    def create_verified_user(self, user_id, phone_number, gender, push_id):
         with sa_session(self.scoped_session) as session:
             invited_user = TBHUser(phone_number=phone_number, id=user_id,
-                                   status=VERIFIED_STATUS, gender=gender)
+                                   status=VERIFIED_STATUS, gender=gender, push_id=push_id)
             session.add(invited_user)
 
             return invited_user
 
     def verify_user(self, phone_number):
         with sa_session(self.scoped_session) as session:
-            user = session.query(TBHUser).filter(
-                TBHUser.phone_number == phone_number).one()
 
-            if not user:
+            try:
+                user = session.query(TBHUser).filter(
+                    TBHUser.phone_number == phone_number).one()
+            except:
                 raise ResourceError('User resource not found')
 
             user.status = 1
