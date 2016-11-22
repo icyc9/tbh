@@ -25,3 +25,8 @@ RUN add-apt-repository -y ppa:ubuntu-toolchain-r/test                  && \
     update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 60      \
                         --slave /usr/bin/g++ g++ /usr/bin/g++-5        && \
     apt-file update -y
+
+# create directory for child images to store configuration in
+RUN apt-get -y install supervisor && \
+  mkdir -p /var/log/supervisor && \
+  mkdir -p /etc/supervisor/conf.d

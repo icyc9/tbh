@@ -9,8 +9,6 @@ RUN echo "deb http://apt.postgresql.org/pub/repos/apt/ trusty-pgdg main"    \
     apt-get update                                                       && \
     apt-get install -y postgresql-server-dev-9.5
 
-COPY tbh/ /home/user
-
 RUN pip install --upgrade pip       && \
     pip install wheel               && \
     pip install -r requirements.txt && \
@@ -18,11 +16,6 @@ RUN pip install --upgrade pip       && \
     python setup.py install
 
 RUN mv gunicorn/app.conf /etc/init
-
-# create directory for child images to store configuration in
-RUN apt-get -y install supervisor && \
-  mkdir -p /var/log/supervisor && \
-  mkdir -p /etc/supervisor/conf.d
 
 # supervisor base configuration
 COPY tbh/supervisor/supervisor.conf /etc/supervisor.conf

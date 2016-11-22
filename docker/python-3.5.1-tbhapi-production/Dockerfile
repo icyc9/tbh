@@ -1,4 +1,4 @@
-FROM tbhapi/python-3.5.1-tbhapi-development
+FROM tbhapi/python-3.5.1
 
 ENV DOCKER_IMAGE=tbhapi/python-3.5.1-tbhapi-production
 
