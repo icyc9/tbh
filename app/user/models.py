@@ -4,7 +4,6 @@ from sqlalchemy.orm import relationship
 from sqlalchemy_utils.types.phone_number import PhoneNumberType
 
 from app import database
-from app.messages.models import Message
 
 
 Base = database.get_declaractive_base()

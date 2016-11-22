@@ -3,7 +3,7 @@ from http import HTTPStatus
 from tornado.escape import json_decode
 
 from app.base import BaseHandler
-from app.exceptions import AuthError
+from app.exceptions import (AuthError, BadRequest)
 
 
 class AuthHandler(BaseHandler):
@@ -21,19 +21,18 @@ class AuthHandler(BaseHandler):
         provider = self.request.headers.get('X-Auth-Service-Provider')
 
         if (not auth_header or not provider):
-            self.set_status(int(HTTPStatus.BAD_REQUEST))
-            return self.finish()
+            raise BadRequest(reason='missing auth header and provider',
+                             status_code=int(HTTPStatus.BAD_REQUEST))
 
         try:
             request_body = json_decode(self.request.body)
             gender = request_body['gender']
             push_id = request_body['push_id']
-
-            if gender not in (0, 1):
-                raise Exception('Invalid gender')
         except:
-            self.set_status(int(HTTPStatus.BAD_REQUEST))
-            return self.finish()
+            raise BadRequest(reason='missing required fields', status_code=400)
+
+        if gender not in (0, 1):
+            raise BadRequest(reason='invalid gender provided', status_code=400)
 
         try:
             digits_user = self.auth_service.fetch_digits_provider(
@@ -42,8 +41,9 @@ class AuthHandler(BaseHandler):
             user_id = digits_user['id']
             phone_number = digits_user['phone_number']
         except AuthError:
-            self.set_status(int(HTTPStatus.UNAUTHORIZED))
-            return self.finish()
+            raise AuthError(reason='invalid user provided',
+                            status_code=int(HTTPStatus.UNAUTHORIZED))
+
 
         self.user_service.verify_user_resource(
             user_id=user_id, phone_number=phone_number, gender=gender, push_id=push_id)

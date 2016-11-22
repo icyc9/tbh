@@ -1,7 +1,7 @@
-from sqlalchemy.orm.exc import NoResultFound
+import sqlalchemy
 
-from app.auth.jwt import jwt_required
 from app.exceptions import (ResourceError, DuplicateMessage)
+
 
 PENDING_MESSAGE_STATUS = 0
 MUTUAL_MESSAGE_STATUS = 1
@@ -26,7 +26,7 @@ class MessageService(object):
             # Filter query results and label sender
             sending_user = [user for user in users if user.id == sender_id][0]
         except IndexError:
-            raise ResourceError('Sending user does not exist')
+            raise ResourceError(reason='Sending user does not exist', status=409)
 
         try:
             # Filter query results and label receiver
@@ -38,8 +38,8 @@ class MessageService(object):
                 phone_number=receiver_phone_number)
 
         sender_push_id = sending_user.push_id
-        receiver_push_id = sending_user.push_id
-        sender_gender = 'guy' if sender.gender == 0 else 'girl'
+        receiver_push_id = receiver.push_id
+        sender_gender = 'guy' if sending_user.gender == 0 else 'girl'
         receiver_gender = 'guy' if receiver.gender == 0 else 'girl'
 
         try:
@@ -48,24 +48,25 @@ class MessageService(object):
 
             if pending_messages.sender_id == sender_id:
                 # Sender has already sent this
-                raise DuplicateMessage('Sender has already sent this message')
+                raise DuplicateMessage(reason='Sender has already sent this message', status=409)
 
             self.message_repository.delete_messages(messages=pending_messages)
             self.message_repository.create_message(sending_user=sending_user, receiving_user=receiver,
                                                    text=text, status=MUTUAL_MESSAGE_STATUS)
 
             self.push_notify_service.send_push_notification(push_id=sender_push_id,
-                message_title='New match!', message_body='You are matched with a %s' % s)
+                message_title='New match!', message_body='You are matched with a %s' % sender_gender)
 
             self.push_notify_service.send_push_notification(push_id=receiver_push_id,
-                message_title='New match!', message_body='You are matched with a %s' % s)
+                message_title='New match!', message_body='You are matched with a %s' % receiver_gender)
 
-        except NoResultFound:
+        except sqlalchemy.orm.exc.NoResultFound:
             # Pending message does not exist between the users
             # Create a pending message
             self.message_repository.create_message(sending_user=sending_user, receiving_user=receiver,
                                                    text=text, status=PENDING_MESSAGE_STATUS)
-            self.push_notify_service.send_push_notification(push_id=receiver_push_id, 
+
+            self.push_notify_service.send_push_notification(push_id=receiver_push_id,
                 message_title='Message received!', message_body='New anonymous message')
 
     def get_received_messages(self, user_id):

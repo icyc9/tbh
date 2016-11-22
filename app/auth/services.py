@@ -36,13 +36,14 @@ class AuthService(object):
         try:
             response = self._http_client.fetch(
                 HTTPRequest(provider_url, headers={'Authorization': auth_header}))
+            response_status = response.code
         except:
-            raise AuthError('Error retrieving digits account')
-
-        response_status = response.code
+            raise AuthError(reason='Error retrieving digits account',
+                            status_code=response_status)
 
         if not response_status == int(HTTPStatus.OK):
-            raise AuthError('Error retrieving digits account')
+            raise AuthError(reason='Error retrieving digits account',
+                            status_code=response_status)
 
         return json_decode(response.body)
 
@@ -57,9 +58,7 @@ class JWTService(object):
         pass
 
     def sign_jwt_token(self, payload):
-
         encoded_token = jwt.encode(payload, Config.JWT['secret'],
             algorithm=JWT_ALGORITHM).decode(encoding='utf8')
-
 
         return encoded_token

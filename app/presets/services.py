@@ -1,4 +1,5 @@
 from app.presets.presets import MESSAGE_LIST
+from app.exceptions import PresetError
 
 
 def get_preset_by_code(code):
@@ -7,4 +8,4 @@ def get_preset_by_code(code):
         if item['code'] == code:
             return item['message']
 
-    raise Exception('Preset does not exist')
+    raise PresetError('Preset does not exist')

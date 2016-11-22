@@ -5,7 +5,7 @@ from app.base import BaseHandler
 from app.auth.jwt import jwt_required
 from app.messages.schema import (PendingMessageSchema, MutualMessageSchema)
 from app.presets.services import get_preset_by_code
-from app.exceptions import DuplicateMessage
+from app.exceptions import ApiError
 
 
 @jwt_required
@@ -37,11 +37,9 @@ class MessageHandler(BaseHandler):
             filter_service = self.FILTER_SERVICES[filter]
         except:
             # Filter does not exist
-            self.set_status(int(HTTPStatus.BAD_REQUEST))
-            return self.finish()
+            raise ApiError(reason='specified filter does not exist', status=404)
 
         results = filter_service(self.tbh_user_id)
-        # or to dump a list of objects
         message_schema = self.FILTER_SERIALIZERS[filter](many=True)
         results = {'messages': message_schema.dump(results).data }
 
@@ -49,27 +47,19 @@ class MessageHandler(BaseHandler):
         self.set_status(int(HTTPStatus.OK))
         self.finish()
 
+    def write_error(self, error, **kwargs):
+        # Send error up to base handler
+        BaseHandler.write_error(self, error, *kwargs)
+
     def post(self):
         '''Send message'''
 
-        try:
-            request_body = json_decode(self.request.body)
-            receiver_phone_number = request_body['receiver_phone_number']
-            message_text = get_preset_by_code(request_body['message_id'])
-        except Exception as e:
-            self.set_status(int(HTTPStatus.BAD_REQUEST))
-            return self.finish()
+        request_body = json_decode(self.request.body)
+        receiver_phone_number = request_body['receiver_phone_number']
+        message_text = get_preset_by_code(request_body['message_id'])
 
-        try:
-            self.message_service.send_message(sender_id=self.tbh_user_id,
-                receiver_phone_number=receiver_phone_number, text=message_text)
-            
-        except Exception:
-            self.set_status(int(HTTPStatus.UNAUTHORIZED))
-            return self.finish()
-        except DuplicateMessage:
-            self.set_status(int(HTTPStatus.CONFLICT))
-            return self.finish()
+        self.message_service.send_message(sender_id=self.tbh_user_id,
+            receiver_phone_number=receiver_phone_number, text=message_text)
 
         self.set_status(int(HTTPStatus.OK))
         self.finish()
