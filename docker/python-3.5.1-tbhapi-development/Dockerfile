@@ -9,6 +9,8 @@ RUN echo "deb http://apt.postgresql.org/pub/repos/apt/ trusty-pgdg main"    \
     apt-get update                                                       && \
     apt-get install -y postgresql-server-dev-9.5
 
+COPY tbh/ /home/user
+
 RUN pip install --upgrade pip       && \
     pip install wheel               && \
     pip install -r requirements.txt && \
